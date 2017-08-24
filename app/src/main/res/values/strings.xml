@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Internetowy System Służb Konduktorskich</string>
+    <string name="title_activity_announcement">Ogłoszenia</string>
+    <string name="drawer_open">Drawer opened</string>
+    <string name="drawer_close">Drawer closed</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="loginerror_badpass">Nie udało się zalogować. Sprawdź e-mail i hasło.</string>
+    <string name="loginerror_database">Błąd połączenia z bazą danych.</string>
+    <string name="loginerror">Nie udało się zalogować.</string>
+    <string name="loginexception">Powstał wyjątek w module wykonawczym. Skontaktuj się z twórcą.</string>
+    <string name="interrupted_login_exception">Przerwano proces logowania.</string>
+    <string name="execution_login_exception">Wystąpił błąd przy uruchamianiu procesu logowania. Skontaktuj się z twórcą.</string>
+    <string name="fill_every_edit">Uzupełnij wszystkie pola.</string>
+</resources>
