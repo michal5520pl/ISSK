@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * Created by Szczur on 25.06.2017. Used by ISSK.
  * LoginActivityTask - network task.
@@ -27,7 +29,7 @@ import java.util.Map;
 
 final class LoginActivityTask extends AsyncTask<Object, Void, Object> {
 
-    private static final boolean TEST = true;
+    static HttpsURLConnection HTTPSURLCONNECT;
 
     @Override
     protected Object doInBackground(Object[] objects){
@@ -41,24 +43,14 @@ final class LoginActivityTask extends AsyncTask<Object, Void, Object> {
             String emailANDpassPOST = URLEncoder.encode("mail", "UTF-8") + "=" + URLEncoder.encode(objects[0].toString(),"UTF-8");
             emailANDpassPOST += "&" + URLEncoder.encode("haslo","UTF-8") + "=" + URLEncoder.encode(objects[1].toString(),"UTF-8"); //Enkodowanie danych
 
-            HttpURLConnection loginconnect = (HttpURLConnection) loginURL.openConnection(); //otwarcie połączenia
-            loginconnect.setDoOutput(true);
+            LoginActivityTask.HTTPSURLCONNECT = (HttpsURLConnection) loginURL.openConnection(); //otwarcie połączenia
+            HTTPSURLCONNECT.setDoOutput(true);
 
-            OutputStreamWriter sendData = new OutputStreamWriter(loginconnect.getOutputStream()); //do wysyłania
+            OutputStreamWriter sendData = new OutputStreamWriter(HTTPSURLCONNECT.getOutputStream()); //do wysyłania
             sendData.write(emailANDpassPOST);
             sendData.flush(); //wysyłanie danych i czyszczenie bufora
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(loginconnect.getInputStream())); //do otrzymywania
-
-            if(TEST){
-                Map<String, List<String>> _temp = loginconnect.getHeaderFields();
-                for (Object _tempVal : _temp.values()) {
-                    System.out.print(_tempVal.toString());
-                }
-            }
-
-            String cookies = (loginconnect.getHeaderField("Set-Cookie")).substring(10, 41);
-
+            BufferedReader reader = new BufferedReader(new InputStreamReader(HTTPSURLCONNECT.getInputStream())); //do otrzymywania
             String receivedData;
 
             while((receivedData = reader.readLine()) != null){
@@ -66,7 +58,6 @@ final class LoginActivityTask extends AsyncTask<Object, Void, Object> {
             }
 
             if(SB.toString().contains("\"error\":false")){
-                int i = 0;
                 JSONObject jsonobject1 = new JSONObject(SB.toString().trim());
                 JSONObject jsonobject = jsonobject1.getJSONObject("perm");
                 ArrayList<String> array = new ArrayList<>();
@@ -85,7 +76,6 @@ final class LoginActivityTask extends AsyncTask<Object, Void, Object> {
                         }
                     }
                 }
-                array.add(cookies);
                 return array;
             }
             else if(SB.toString().contains("\"error\":\"B\\u0142\\u0119dny login lub has\\u0142o!\"")){

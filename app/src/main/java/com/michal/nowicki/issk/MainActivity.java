@@ -34,15 +34,8 @@ public class MainActivity extends AppCompatActivity {
         return infoandperms;
     }
 
-    protected String getCookie(){
-        return cookie;
-    }
-
     protected CookieManager getCookieManager(){
-        if(cookieManager == null && cookie == null){
-            cookieManager = new CookieManager();
-        }
-        return cookieManager;
+        return cookieManager = new CookieManager();
     }
 
     private class NavItem {
@@ -167,9 +160,6 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         infoandperms = intent.getStringExtra(LoginActivity.DATA);
-
-        cookie = infoandperms.substring((infoandperms.length() - 31), (infoandperms.length()));
-        infoandperms = infoandperms.substring(0, (infoandperms.length() - 33));
 
         for (String mChoice : mChoices){
             switch(mChoice){

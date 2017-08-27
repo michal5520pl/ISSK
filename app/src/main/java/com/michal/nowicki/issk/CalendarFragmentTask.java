@@ -27,7 +27,6 @@ final class CalendarFragmentTask extends AsyncTask<Void, Void, ArrayList<String>
             StringBuilder SB = new StringBuilder();
             URL calendarGetURL = new URL(BasicMethods.getMainURL() + "callendar/get.php");
             URLConnection calendarGetConnect = calendarGetURL.openConnection();
-            calendarGetConnect.setRequestProperty("Cookie", new MainActivity().getCookie() + "; domain=" + BasicMethods.getMainURL() + "; path=/");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(calendarGetConnect.getInputStream()));
 

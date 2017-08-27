@@ -10,29 +10,24 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.HttpURLConnection;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * Created by Szczur on 16.08.2017. Used by ISSK.
  * This class checks, if session is valid.
  */
 
-class SessionCheckTask extends AsyncTask<String, Void, Integer> {
+class SessionCheckTask extends AsyncTask<Void, Void, Integer> {
     @Override
-    protected Integer doInBackground(String... strings) {
+    protected Integer doInBackground(Void... voids) {
         try {
-
-            //test
-            LoginActivity LA = new LoginActivity();
-            HttpResponseCache responseCache = LA.httpCacheFileCreate();
-
             StringBuilder SB = new StringBuilder();
             URL verifyURL = new URL(BasicMethods.getMainURL() + "session_verify.php");
-            HttpURLConnection verifyURLConnection = (HttpURLConnection) verifyURL.openConnection();
-            verifyURLConnection.setUseCaches(true);
-            verifyURLConnection.setDoOutput(true);
-            verifyURLConnection.setRequestProperty("Cookie", "PHPSESSID=" + strings[0] +"; domain=" + BasicMethods.getMainURL() + "; path=/");
-            verifyURLConnection.connect();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(verifyURLConnection.getInputStream()));
+            LoginActivityTask.HTTPSURLCONNECT = (HttpsURLConnection) verifyURL.openConnection();
+            LoginActivityTask.HTTPSURLCONNECT.connect();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(LoginActivityTask.HTTPSURLCONNECT.getInputStream()));
 
             String receivedData;
             while((receivedData = reader.readLine()) != null){

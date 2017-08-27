@@ -52,7 +52,6 @@ public class LoginActivity extends AppCompatActivity {
                         if(!((data.toString().contains("\"error\"")) || (data.toString().contains("Error")) || (data.toString().contains("Exception")))){
                             Intent intent = new Intent(v.getContext(), MainActivity.class);
                             intent.putExtra(DATA, (data.toString()).substring(1, (data.toString().length() - 1)));
-                            //errText.setText(data.toString());
                             startActivity(intent);
                             finish();
                         }

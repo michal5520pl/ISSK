@@ -7,7 +7,8 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by Szczur on 20.07.2017.
@@ -18,10 +19,11 @@ final class AnnouncementFragmentTask extends AsyncTask<Void, Void, Object> {
     protected Object doInBackground(Void... voids) {
         try {
             StringBuilder SB = new StringBuilder();
-            URL noticeGetURL = new URL(BasicMethods.getMainURL() + "notice/get.php");
-            URLConnection noticeGetConnect = noticeGetURL.openConnection();
+            URL noticeGetURL = new URL(BasicMethods.getMainURL() + "notice/getall.php");
+            LoginActivityTask.HTTPSURLCONNECT = (HttpsURLConnection) noticeGetURL.openConnection();
+            LoginActivityTask.HTTPSURLCONNECT.connect();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(noticeGetConnect.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(LoginActivityTask.HTTPSURLCONNECT.getInputStream()));
 
             String receivedData;
             while((receivedData = reader.readLine()) != null){
@@ -29,7 +31,7 @@ final class AnnouncementFragmentTask extends AsyncTask<Void, Void, Object> {
             }
 
             if(SB.toString().contains("\"error\":false")){
-                //dadsasd
+
                 return null;
             }
             else {

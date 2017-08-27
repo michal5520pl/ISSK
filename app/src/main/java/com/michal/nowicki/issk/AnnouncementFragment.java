@@ -26,7 +26,7 @@ public class AnnouncementFragment extends Fragment {
         try {
             SessionCheckTask SC = new SessionCheckTask();
 
-            SC.execute(((MainActivity)getActivity()).getCookie());
+            SC.execute();
 
             switch(SC.get()){
                 case 0:
