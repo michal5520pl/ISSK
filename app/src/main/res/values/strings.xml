@@ -5,11 +5,19 @@
     <string name="drawer_close">Drawer closed</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--> errors </!-->
     <string name="loginerror_badpass">Nie udało się zalogować. Sprawdź e-mail i hasło.</string>
-    <string name="loginerror_database">Błąd połączenia z bazą danych.</string>
     <string name="loginerror">Nie udało się zalogować.</string>
-    <string name="loginexception">Powstał wyjątek w module wykonawczym. Skontaktuj się z twórcą.</string>
-    <string name="interrupted_login_exception">Przerwano proces logowania.</string>
-    <string name="execution_login_exception">Wystąpił błąd przy uruchamianiu procesu logowania. Skontaktuj się z twórcą.</string>
+    <string name="not_logged_in">Nie jesteś zalogowany/a.</string>
+    <string name="database_error">Błąd połączenia z bazą danych.</string>
+    <string name="process_exception">Powstał wyjątek w module wykonawczym. Skontaktuj się z twórcą.</string>
+    <string name="interrupted_exception">Przerwano proces.</string>
+    <string name="execution_exception">Wystąpił błąd przy uruchamianiu procesu. Skontaktuj się z twórcą.</string>
+    <string name="somethings_not_ok">Coś poszło nie tak.</string>
+    <string name="session_verification_failed">Wystąpił błąd weryfikacji sesji.</string>
+
+    <!--> infos </!-->
+    <string name="session_passed">Sesja wygasła.</string>
     <string name="fill_every_edit">Uzupełnij wszystkie pola.</string>
+    <string name="no_notices">Brak ogłoszeń.</string>
 </resources>

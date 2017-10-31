@@ -2,6 +2,7 @@ package com.michal.nowicki.issk;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -14,23 +15,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.net.CookieManager;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    protected String infoandperms;
-    protected String cookie;
+    static String infoandperms;
     protected CookieManager cookieManager;
 
-    protected String getPermsString(){
+    protected static String getPermsString(){
         return infoandperms;
     }
 
@@ -79,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
             if(convertView == null){
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.drawer_item, parent, false);
-
             }
             else {
                 view = convertView;
@@ -143,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
         return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
-    private String[] mChoices = new String[]{"Ogłoszenia", "Kalendarz", "Lista szkoleń", "Rozkłady jazdy", "Dodawanie rozkładów", "Konta użytkowników", "Raporty", "Grafik", "Regulamin służby", "Informacje dodatkowe", "Moje konto", "Wyloguj się"};
     private static String TAG = MainActivity.class.getSimpleName();
 
     ListView mDrawerList;
@@ -161,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         infoandperms = intent.getStringExtra(LoginActivity.DATA);
 
-        for (String mChoice : mChoices){
+        for (String mChoice : BasicMethods.DRAWERMENUVALUES){
             switch(mChoice){
                 case "Kalendarz":
                 {
@@ -256,6 +253,10 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, new AnnouncementFragment()).commit();
+
+        SQLiteDatabase localDB = SQLiteDatabase.openDatabase(getApplication().getFilesDir().toString() + "local_data", null, SQLiteDatabase.OPEN_READWRITE);
+        //if();
+        localDB.close();
     }
 
     @Override

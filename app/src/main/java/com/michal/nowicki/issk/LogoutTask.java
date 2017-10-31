@@ -6,7 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by Szczur on 05.07.2017. Used by ISSK.
@@ -20,9 +21,9 @@ final class LogoutTask extends AsyncTask<Void, Void, Boolean> {
         try {
             URL logoutURL = new URL(BasicMethods.getMainURL() + "logout.php?api=1");
 
-            URLConnection logoutconnect = logoutURL.openConnection();
+            LoginActivityTask.HTTPSURLCONNECT = (HttpsURLConnection) logoutURL.openConnection();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(logoutconnect.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(LoginActivityTask.HTTPSURLCONNECT.getInputStream()));
 
             return reader.readLine().equals("{\"error\":false}");
         }

@@ -1,6 +1,5 @@
 package com.michal.nowicki.issk;
 
-import android.net.http.HttpResponseCache;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -8,10 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Intent;
-import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.CookieHandler;
 
 public class LoginActivity extends AppCompatActivity {
@@ -59,21 +55,21 @@ public class LoginActivity extends AppCompatActivity {
                             errText.setText(R.string.loginerror_badpass);
                         }
                         else if(data.toString().equals("Error: 2")){
-                            errText.setText(R.string.loginerror_database);
+                            errText.setText(R.string.database_error);
                         }
                         else if(data.toString().equals("Error: 3")){
                             errText.setText(R.string.loginerror);
                         }
                         else if(data.toString().contains("Exception:")){
-                            errText.setText(R.string.loginexception);
+                            errText.setText(R.string.process_exception);
                         }
                     }
                     catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException e){
                         if (e.toString().contains("java.lang.InterruptedException")){
-                            errText.setText(R.string.interrupted_login_exception);
+                            errText.setText(R.string.interrupted_exception);
                         }
                         else if (e.toString().contains("java.util.concurrent.ExecutionException")){
-                            errText.setText(R.string.execution_login_exception);
+                            errText.setText(R.string.execution_exception);
                         }
                     }
                 }
@@ -84,38 +80,14 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    protected HttpResponseCache httpCacheFileCreate(){
-        try {
-            File httpCacheDir = new File(getApplicationContext().getCacheDir(), "http");
-            long httpCacheSize = 5 * 1024 * 1024;
-            return HttpResponseCache.install(httpCacheDir, httpCacheSize);
-        }
-        catch(IOException e){
-            Toast.makeText(getApplicationContext(), "Nie udało się utworzyć pliku cache.", Toast.LENGTH_LONG).show();
-            return null;
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        stringFromJNI();
 
         MainActivity MA = new MainActivity();
         CookieHandler.setDefault(MA.getCookieManager());
 
         loginButton();
-    }
-
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    public native String stringFromJNI();
-
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
     }
 }

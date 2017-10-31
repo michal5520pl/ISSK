@@ -1,20 +1,124 @@
 package com.michal.nowicki.issk;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+
 /**
- * Created by Szczur on 04.07.2017.
+ * Created by Szczur on 04.07.2017. Used by ISSK.
+ * This fragment is used for showing annoucements data.
  */
 
 public class AnnouncementFragment extends Fragment {
 
     public AnnouncementFragment(){}
+
+    private class NoticeItem{
+        String id, title, author_id, author, publish, archive, changed, content;
+
+        NoticeItem(HashMap<String, String> hashMap){
+            this.id = hashMap.get("id");
+            this.title = hashMap.get("title") + "\n";
+            this.author_id = hashMap.get("author_id");
+            this.author = hashMap.get("author");
+            this.publish = hashMap.get("publish");
+            this.content = hashMap.get("content");
+
+            if(MainActivity.getPermsString().contains("ogl_edit")){
+                this.archive = hashMap.get("archive");
+                this.changed = hashMap.get("changed");
+            }
+        }
+    }
+
+    private class ListNoticeAdapter extends BaseAdapter {
+        Context context;
+        ArrayList<NoticeItem> noticeArray;
+
+        ListNoticeAdapter(Context context, ArrayList<NoticeItem> noticeArray){
+            this.context = context;
+            this.noticeArray = noticeArray;
+        }
+
+        @Override
+        public int getCount() {
+            return noticeArray.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return noticeArray.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup viewGroup) {
+            View view;
+
+            if(convertView == null){
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.annoucement_tab, viewGroup, false);
+            }
+            else {
+                view = convertView;
+            }
+
+            TextView titleView = view.findViewById(R.id.title);
+            TextView authorView = view.findViewById(R.id.author);
+            TextView publishView = view.findViewById(R.id.publish);
+            TextView archiveView = view.findViewById(R.id.archive);
+            TextView changedView = view.findViewById(R.id.changed);
+            TextView contentView = view.findViewById(R.id.content);
+
+            titleView.setText(noticeArray.get(position).title);
+            authorView.setText(noticeArray.get(position).author);
+            publishView.setText(noticeArray.get(position).publish);
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                contentView.setText(Html.fromHtml(noticeArray.get(position).content, 16));
+            else if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                //noinspection deprecation
+                contentView.setText(Html.fromHtml(noticeArray.get(position).content));
+
+            if(MainActivity.getPermsString().contains("ogl_edit") && noticeArray.get(position).archive != null){
+                String archive = "Archiwizacja: " + noticeArray.get(position).archive;
+                String changed = "Edytowane: " + noticeArray.get(position).changed;
+
+                archiveView.setText(archive);
+                changedView.setText(changed);
+            }
+            else if(! MainActivity.getPermsString().contains("ogl_edit")){
+                viewGroup.removeView(archiveView);
+                viewGroup.removeView(changedView);
+            }
+            else
+                Toast.makeText(context, "Archive && changed == null", Toast.LENGTH_LONG).show();
+
+            if(noticeArray.get(position).changed.equals("01 stycznia 1970 r."))
+                changedView.setText("");
+
+            return view;
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -23,63 +127,141 @@ public class AnnouncementFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
-        try {
-            SessionCheckTask SC = new SessionCheckTask();
-
-            SC.execute();
-
-            switch(SC.get()){
-                case 0:
-                {
-                    AnnouncementFragmentTask AT = new AnnouncementFragmentTask();
-                    AT.execute();
-                    break;
-                }
-                case 1:
-                {
-                    if(getView() != null){
-                        Intent intent = new Intent(getView().getContext(), LoginActivity.class);
-                        startActivity(intent);
-                        getActivity().finish();
-                        Toast.makeText(getView().getContext(), "Nie jesteś zalogowany/a.", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                }
-                case 2:
-                {
-                    if(getView() != null){
-                        Toast.makeText(getView().getContext(), "Wystąpił błąd weryfikacji sesji.", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                }
-                case 3:
-                {
-                    if(getView() != null){
-                        Intent intent = new Intent(getView().getContext(), LoginActivity.class);
-                        startActivity(intent);
-                        getActivity().finish();
-                        Toast.makeText(getView().getContext(), "Sesja wygasła", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                }
-                case 4:
-                {
-                    if(getView() != null){
-                        Toast.makeText(getView().getContext(), "Wystąpił błąd połączenia z bazą danych", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                }
-                default:
-                {
-                    if(getView() != null){
-                        Toast.makeText(getView().getContext(), "Wystąpił błąd realizacji wątku SC.", Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
+        if(MainActivity.getPermsString().contains("ogl_archive")){
+            View tab2 = view.findViewById(R.id.tab2);
+            tab2.setVisibility(View.VISIBLE);
         }
-        catch(Exception e){
-            if(getView() != null){
-                Toast.makeText(getView().getContext(), "Coś poszło nie tak. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        else {
+            View tab2 = view.findViewById(R.id.tab2);
+            View tabs = view.findViewById(R.id.tabs);
+
+            tab2.setVisibility(View.GONE);
+            tabs.setVisibility(View.GONE);
+        }
+
+        switch(BasicMethods.checkSession()){
+            case 0:
+            {
+                try {
+                    // ---- actual announcements ---- //
+                    AnnouncementFragmentTask AFT = new AnnouncementFragmentTask();
+
+                    AFT.execute();
+                    ArrayList<HashMap<String, String>> receivedArray = AFT.get();
+
+                    if(receivedArray == null){
+                        Toast.makeText(view.getContext(), "FATAL EXCEPTION: AFT.get() == null! Skontaktuj się z twórcą aplikacji.", Toast.LENGTH_LONG).show();
+                        break;
+                    }
+
+                    if(receivedArray.size() == 0){
+                        TextView textView_no_notices = new TextView(this.getContext());
+                        textView_no_notices.setText(R.string.no_notices);
+
+                        if(! MainActivity.getPermsString().contains("ogl_archive")){
+                            LinearLayout announcementList = getActivity().findViewById(R.id.announcementList);
+                            announcementList.removeAllViews();
+                            announcementList.addView(textView_no_notices);
+                        }
+                        else {
+                            LinearLayout tab1 = view.findViewById(R.id.tab1);
+                            tab1.removeAllViews();
+                            tab1.addView(textView_no_notices);
+                        }
+
+                        break;
+                    }
+
+                    if(receivedArray.get(0).containsKey("error")){
+                        throw new dataNotReceivedException("Received error from AFT.");
+                    }
+
+                    ArrayList<NoticeItem> noticeItemArrayList = new ArrayList<>();
+
+                    for(int i = 0; i < receivedArray.size(); i++){
+                        noticeItemArrayList.add(new NoticeItem(receivedArray.get(i)));
+                    }
+
+                    ListNoticeAdapter actualAdapter = new ListNoticeAdapter(getContext(), noticeItemArrayList);
+                    ListView actualListView = view.findViewById(R.id.navlist_actual);
+
+                    actualListView.setAdapter(actualAdapter);
+                    //BasicMethods.setOnTouchListViewListener(actualListView);
+                    //BasicMethods.setListViewHeightBasedOnChildren(actualListView);
+
+                    // ---- archive announcements ---- //
+
+                    if(MainActivity.getPermsString().contains("ogl_archive")){
+                        ArchiveAnnouncementFragmentTask AAFT = new ArchiveAnnouncementFragmentTask();
+
+                        AAFT.execute();
+                        ArrayList<HashMap<String, String>> receivedArchiveArray = AAFT.get();
+
+                        if(receivedArchiveArray == null){
+                            Toast.makeText(view.getContext(), R.string.process_exception, Toast.LENGTH_LONG).show();
+                            break;
+                        }
+
+                        if(receivedArchiveArray.size() == 0){
+                            TextView textView_no_archive_notices = new TextView(this.getContext());
+                            textView_no_archive_notices.setText(R.string.no_notices);
+
+                            LinearLayout tab2 = view.findViewById(R.id.tab2);
+                            tab2.removeAllViews();
+                            tab2.addView(textView_no_archive_notices);
+
+                            break;
+                        }
+
+                        if(receivedArchiveArray.get(0).containsKey("error"))
+                            throw new dataNotReceivedException("Received error from AAFT.");
+
+                        ArrayList<NoticeItem> archiveNoticeItemArrayList = new ArrayList<>();
+
+                        for(int j= 0; j < receivedArchiveArray.size(); j++){
+                            archiveNoticeItemArrayList.add(new NoticeItem(receivedArchiveArray.get(j)));
+                        }
+
+                        ListNoticeAdapter archiveAdapter = new ListNoticeAdapter(getContext(), archiveNoticeItemArrayList);
+                        ListView archiveListView = view.findViewById(R.id.navlist_archive);
+
+                        archiveListView.setAdapter(archiveAdapter);
+                    }
+                }
+                catch (InterruptedException | ExecutionException | dataNotReceivedException e){
+                    Toast.makeText(view.getContext(), R.string.somethings_not_ok + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                }
+                break;
+                }
+            case 1:
+            {
+                Intent intent = new Intent(view.getContext(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
+                Toast.makeText(view.getContext(), R.string.not_logged_in, Toast.LENGTH_LONG).show();
+                break;
+            }
+            case 2:
+            {
+                Toast.makeText(view.getContext(), R.string.session_verification_failed, Toast.LENGTH_LONG).show();
+                break;
+            }
+            case 3:
+            {
+                Intent intent = new Intent(view.getContext(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
+                Toast.makeText(view.getContext(), R.string.session_passed, Toast.LENGTH_LONG).show();
+                break;
+            }
+            case 4:
+            {
+                Toast.makeText(view.getContext(), R.string.database_error, Toast.LENGTH_LONG).show();
+                break;
+            }
+            default:
+            {
+                Toast.makeText(view.getContext(), R.string.process_exception + " Moduł SC", Toast.LENGTH_LONG).show();
             }
         }
     }

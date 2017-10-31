@@ -16,17 +16,17 @@ import java.util.HashMap;
 import javax.net.ssl.HttpsURLConnection;
 
 /**
- * Created by Szczur on 20.07.2017.
- * This class downloads actual notices.
+ * Created by Szczur on 08.10.2017. Used by ISSK.
+ * This class downloads archive notices.
  */
 
-final class AnnouncementFragmentTask extends AsyncTask<Void, Void, ArrayList<HashMap<String, String>>> {
+final class ArchiveAnnouncementFragmentTask extends AsyncTask<Void, Void, ArrayList<HashMap<String, String>>> {
     @Override
     protected ArrayList<HashMap<String, String>> doInBackground(Void... voids) {
         try {
             StringBuilder SB = new StringBuilder();
-            URL noticeGetURL = new URL(BasicMethods.getMainURL() + "notice/getall.php");
-            LoginActivityTask.HTTPSURLCONNECT = (HttpsURLConnection) noticeGetURL.openConnection();
+            URL archiveNoticeGetURL = new URL(BasicMethods.getMainURL() + "notice/archive_show.php");
+            LoginActivityTask.HTTPSURLCONNECT = (HttpsURLConnection) archiveNoticeGetURL.openConnection();
             LoginActivityTask.HTTPSURLCONNECT.connect();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(LoginActivityTask.HTTPSURLCONNECT.getInputStream()));
