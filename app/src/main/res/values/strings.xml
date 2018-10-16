@@ -20,4 +20,12 @@
     <string name="session_passed">Sesja wygasła.</string>
     <string name="fill_every_edit">Uzupełnij wszystkie pola.</string>
     <string name="no_notices">Brak ogłoszeń.</string>
+    <string name="fill_title">Uzupełnij tytuł.</string>
+    <string name="fill_content">Uzupełnij treść.</string>
+    <string name="fill_archive">Uzupełnij datę archiwizacji.</string>
+    <string name="send">Wyślij</string>
+    <string name="logged_as">Jesteś zalogowany jako: %1$s.</string>
+    <string name="edit">Edytuj</string>
+    <string name="archive">Archiwizuj</string>
+    <string name="delete">Usuń</string>
 </resources>

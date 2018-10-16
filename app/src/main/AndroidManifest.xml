@@ -24,6 +24,7 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_announcement"
             android:theme="@style/AppTheme" />
+        <activity android:name=".NoticeEditActivity"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package com.michal.nowicki.issk;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,12 +47,19 @@ final class AnnouncementFragmentTask extends AsyncTask<Void, Void, ArrayList<Has
                             }
                         }
                     }
+
+                    if(((c == '\"') || (c == '\'') || (c == '\\')) && !((receivedData.charAt(i - 2) == ':') || (receivedData.charAt(i - 2) == '{') || (receivedData.charAt(i - 2) == ',') || (receivedData.charAt(i) == ',') || (receivedData.charAt(i) == ':') || (receivedData.charAt(i) == '}')))
+                        SB.append('\\');
+
                     SB.append(c);
                 }
             }
 
             if(SB.toString().contains("\"error\":false")){
-                JSONArray jsonArray = new JSONArray(SB.toString().substring(23).trim());
+                if((SB.toString().lastIndexOf("]") - SB.toString().indexOf("[")) == 1){
+                    return new ArrayList<>(0);
+                }
+                JSONArray jsonArray = new JSONArray(SB.toString().substring(23, SB.toString().lastIndexOf("]") + 1).trim());
                 ArrayList<HashMap<String, String>> jsonObjects = new ArrayList<>();
                 HashMap<String, String> tempMap = new HashMap<>();
                 Integer k = 0;
@@ -81,6 +89,7 @@ final class AnnouncementFragmentTask extends AsyncTask<Void, Void, ArrayList<Has
             }
         }
         catch (IOException | JSONException e){
+            Log.e(getClass().getCanonicalName(), e.getLocalizedMessage());
             return null;
         }
     }

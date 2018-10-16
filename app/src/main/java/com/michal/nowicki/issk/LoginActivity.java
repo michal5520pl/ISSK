@@ -1,5 +1,6 @@
 package com.michal.nowicki.issk;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,7 +8,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Intent;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.net.CookieHandler;
 
 public class LoginActivity extends AppCompatActivity {
@@ -15,9 +18,9 @@ public class LoginActivity extends AppCompatActivity {
     public Button button1;
     public static final String DATA = "data";
 
-    public String returnData(String requiredData){
-        EditText emailText = (EditText) findViewById(R.id.editEmail);
-        EditText passText = (EditText) findViewById(R.id.editPass);
+    String returnData(String requiredData){
+        EditText emailText = findViewById(R.id.editEmail);
+        EditText passText = findViewById(R.id.editPass);
         switch (requiredData){
             case "email":
                 return emailText.getText().toString().trim();
@@ -29,55 +32,57 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginButton(){
-        button1 = (Button)findViewById(R.id.button1);
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v){
-                Object data;
-                TextView errText = (TextView) findViewById(R.id.textView2);
-                String email = returnData("email");
-                String pass = returnData("pass");
+        Object[] data;
+        TextView errText = findViewById(R.id.textView2);
+        String email = returnData("email");
+        String pass = returnData("pass");
 
-                if (!(email.equals("") || pass.equals(""))){
-                    errText.setText("");
-                    LoginActivityTask LAT = new LoginActivityTask();
-                    try {
-                        LAT.execute(email, pass);
-                        data = LAT.get();
+        if(!(email.equals("") || pass.equals(""))){
+            errText.setText("");
+            CommonInternetTask CIT = new CommonInternetTask();
+            try {
+                CIT.execute("login", true, new Object[]{"mail", "haslo"}, new Object[]{email, pass});
+                data = CIT.get();
 
-                        if(!((data.toString().contains("\"error\"")) || (data.toString().contains("Error")) || (data.toString().contains("Exception")))){
-                            Intent intent = new Intent(v.getContext(), MainActivity.class);
-                            intent.putExtra(DATA, (data.toString()).substring(1, (data.toString().length() - 1)));
-                            startActivity(intent);
-                            finish();
-                        }
-                        else if(data.toString().equals("Error: 1")){
-                            errText.setText(R.string.loginerror_badpass);
-                        }
-                        else if(data.toString().equals("Error: 2")){
-                            errText.setText(R.string.database_error);
-                        }
-                        else if(data.toString().equals("Error: 3")){
-                            errText.setText(R.string.loginerror);
-                        }
-                        else if(data.toString().contains("Exception:")){
-                            errText.setText(R.string.process_exception);
-                        }
-                    }
-                    catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException e){
-                        if (e.toString().contains("java.lang.InterruptedException")){
-                            errText.setText(R.string.interrupted_exception);
-                        }
-                        else if (e.toString().contains("java.util.concurrent.ExecutionException")){
-                            errText.setText(R.string.execution_exception);
-                        }
-                    }
+                if(!(boolean) data[0]){
+                    //DatabaseHandler.update
+
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.putExtra(DATA, (data[1].toString()).substring(1, (data[1].toString().length() - 1)));
+                    startActivity(intent);
+                    finish();
+                }
+                else if(data[1].toString().contains("\"error\":\"Błędny login lub hasło!\"")){
+                    errText.setText(R.string.loginerror_badpass);
+                }
+                else if(data[1].toString().contains("\"error\":\"Błąd połączenia z bazą danych!\"") || data[1].toString().contains("Access denied for user")){
+                    errText.setText(R.string.database_error);
                 }
                 else {
-                    errText.setText(R.string.fill_every_edit);
+                    errText.setText(R.string.loginerror);
+                    Toast.makeText(getApplicationContext(), (String) data[1], Toast.LENGTH_LONG).show();
                 }
             }
-        });
+            catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException e){
+                if (e.toString().contains("java.lang.InterruptedException")){
+                    errText.setText(R.string.interrupted_exception);
+                }
+                else if (e.toString().contains("java.util.concurrent.ExecutionException")){
+                    errText.setText(R.string.execution_exception);
+                }
+            }
+        }
+        else {
+            errText.setText(R.string.fill_every_edit);
+        }
+    }
+
+    private void openDatabaseFillEmailEdit(){
+        String result = DatabaseHandler.readFromDatabase(new String[]{"settings", "rownum < 2", null, null, null}, new String[][]{{"email"}, {null}}, getApplication().getFilesDir().toString());
+        if(result != null) {
+            EditText emailText = findViewById(R.id.editEmail);
+            emailText.setText(result);
+        }
     }
 
     @Override
@@ -85,9 +90,16 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        MainActivity MA = new MainActivity();
-        CookieHandler.setDefault(MA.getCookieManager());
+        CookieHandler.setDefault(MainActivity.getCookieManager());
 
-        loginButton();
+        //openDatabaseFillEmailEdit();
+
+        Button button1 = findViewById(R.id.button1);
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginButton();
+            }
+        });
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,20 +21,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.net.CookieManager;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     static String infoandperms;
-    protected CookieManager cookieManager;
+    protected static CookieManager cookieManager;
 
     protected static String getPermsString(){
         return infoandperms;
     }
 
-    protected CookieManager getCookieManager(){
+    protected static CookieManager getCookieManager(){
         return cookieManager = new CookieManager();
     }
 
@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(convertView == null){
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                assert inflater != null;
                 view = inflater.inflate(R.layout.drawer_item, parent, false);
             }
             else {
@@ -104,12 +105,13 @@ public class MainActivity extends AppCompatActivity {
             case "Grafik": { fragmentManager.beginTransaction().replace(R.id.content_frame, new ScheduleFragment()).commit(); break; }
             case "Regulamin służby": { fragmentManager.beginTransaction().replace(R.id.content_frame, new ScheduleRulesFragment()).commit(); break; }
             case "Moje konto": { fragmentManager.beginTransaction().replace(R.id.content_frame, new MyAccountFragment()).commit(); break; }
+            case "Ustawienia": { fragmentManager.beginTransaction().replace(R.id.content_frame, new SettingsFragment()).commit(); break; }
             case "Wyloguj się": {
                 LogoutTask LogoutT = new LogoutTask();
                 try {
                     LogoutT.execute();
                     if(LogoutT.get().equals(false)){
-                        throw new dataNotReceivedException();
+                        throw new DataNotReceivedException();
                     }
                     Intent intent = new Intent(v.getContext(), LoginActivity.class);
                     startActivity(intent);
@@ -207,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 case "Regulamin służby":
                 case "Informacje dodatkowe":
                 case "Moje konto":
+                case "Ustawienia":
                 case "Wyloguj się":
                 {
                     mNavItems.add(new NavItem(mChoice));
@@ -215,9 +218,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerPane = (RelativeLayout) findViewById(R.id.drawerPane);
-        mDrawerList = (ListView) findViewById(R.id.navList);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerPane = findViewById(R.id.drawerPane);
+        mDrawerList = findViewById(R.id.navList);
         //Spinner spinner = new Spinner(getApplicationContext());
 
         DrawerListAdapter adapter = new DrawerListAdapter(this, mNavItems);
@@ -254,14 +257,41 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, new AnnouncementFragment()).commit();
 
-        SQLiteDatabase localDB = SQLiteDatabase.openDatabase(getApplication().getFilesDir().toString() + "local_data", null, SQLiteDatabase.OPEN_READWRITE);
+        //SQLiteDatabase localDB = SQLiteDatabase.openOrCreateDatabase(getApplication().getFilesDir().toString() + "local_data", null);
         //if();
-        localDB.close();
+        //localDB.close();
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState){
         super.onPostCreate(savedInstanceState);
         mDrawerToggle.syncState();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        getSupportFragmentManager().beginTransaction().detach(fragment).commit();
+        getSupportFragmentManager().beginTransaction().attach(fragment).commit();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+
+        LogoutTask LogoutT = new LogoutTask();
+        try {
+            LogoutT.execute();
+            if(LogoutT.get().equals(false)){
+                throw new DataNotReceivedException();
+            }
+        }
+        catch (Exception e){
+            Context context = getApplicationContext();
+            CharSequence text = "Coś poszło nie tak";
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        }
     }
 }

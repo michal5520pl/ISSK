@@ -20,7 +20,8 @@
         android:id="@+id/author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/content"/>
+        android:layout_below="@id/content"
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:id="@+id/publish"
@@ -39,5 +40,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/archive"/>
+
+    <Button
+        android:id="@+id/delete_notice_bttn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/changed"
+        android:layout_marginTop="5dp"
+        android:text="@string/delete" />
+
+    <Button
+        android:id="@+id/archive_notice_bttn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/delete_notice_bttn"
+        android:layout_centerHorizontal="true"
+        android:text="@string/archive" />
+
+    <Button
+        android:id="@+id/edit_notice_bttn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/archive_notice_bttn"
+        android:text="@string/edit" />
 
 </RelativeLayout>

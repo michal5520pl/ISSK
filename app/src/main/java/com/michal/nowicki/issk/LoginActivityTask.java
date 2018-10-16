@@ -1,7 +1,5 @@
 package com.michal.nowicki.issk;
 
-import android.app.Activity;
-import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
 
 import org.json.JSONObject;
@@ -66,17 +64,21 @@ final class LoginActivityTask extends AsyncTask<Object, Void, Object> {
                 ArrayList<String> array = new ArrayList<>();
 
                 for(String aName : BasicMethods.PERMSNAMEINFO){
-                    if((aName.contains("konduktor_name")) || (aName.contains("name")) || (aName.contains("numer"))) {
-                        array.add(jsonObject.optString(aName));
-                    }
-                    else if (aName.equals("id")) {
-                        Integer result = jsonObject.getInt(aName);
-                        array.add(result.toString());
-                    }
-                    else {
-                        if (jsonObject.getInt(aName) != 0) {
-                            array.add(aName);
-                        }
+                    switch (aName) {
+                        case "konduktor_name":
+                        case "name":
+                        case "numer":
+                            array.add(jsonObject.optString(aName));
+                            break;
+                        case "id":
+                            Integer result = jsonObject.getInt(aName);
+                            array.add(result.toString());
+                            break;
+                        default:
+                            if (jsonObject.getInt(aName) != 0) {
+                                array.add(aName);
+                            }
+                            break;
                     }
                 }
                 return array;

@@ -3,6 +3,7 @@ package com.michal.nowicki.issk;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Szczur on 05.07.2017.
+ * MyAccountFragment
  */
 
 public class MyAccountFragment extends Fragment {
@@ -60,6 +62,7 @@ public class MyAccountFragment extends Fragment {
 
             if(convertView == null){
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                assert inflater != null;
                 view = inflater.inflate(R.layout.myaccount_list, viewGroup, false);
             }
             else {
@@ -131,5 +134,8 @@ public class MyAccountFragment extends Fragment {
         infoAdapter = new InfoAdapter(getContext(), infoItems);
 
         listView.setAdapter(infoAdapter);
+
+        if(MainActivity.getPermsString().split(",")[0].equals("Michał Nowicki"))
+            Log.i(MainActivity.class.getSimpleName(), MainActivity.getPermsString());
     }
 }
