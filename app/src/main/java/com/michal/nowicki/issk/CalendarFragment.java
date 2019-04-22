@@ -28,12 +28,12 @@ public class CalendarFragment extends Fragment {
     public CalendarFragment(){}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_calendar, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
         CalendarView calView = view.findViewById(R.id.calendView);
         final ArrayList<String> receivedArray;
         if((receivedArray = taskExecute()) != null && !(receivedArray.contains("Exception"))){
@@ -59,8 +59,8 @@ public class CalendarFragment extends Fragment {
                 public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
                     Toast.makeText(getContext(), "Year: " + i + " Month: " + (i1 + 1) + " Day: " + i2, Toast.LENGTH_LONG).show();
 
-                    if(dayArray.contains(i2) && monthArray.contains(i1 + 1) && yearArray.contains(i) && receivedArray.contains(i + "-" + (i1 + 1) + "-" + i2)){
-                    }
+                    /*if(dayArray.contains(i2) && monthArray.contains(i1 + 1) && yearArray.contains(i) && receivedArray.contains(i + "-" + (i1 + 1) + "-" + i2)){
+                    }*/
                 }
             });
         }
@@ -72,16 +72,26 @@ public class CalendarFragment extends Fragment {
     }
 
     public ArrayList<String> taskExecute(){
-        CalendarFragmentTask CFT = new CalendarFragmentTask();
+        CommonInternetTask CIT = new CommonInternetTask();
 
         try {
-            CFT.execute();
-            return CFT.get();
+            CIT.execute("callendar/get", false);
+            Object[] receivedArr = CIT.get();
+            ArrayList<String> retArr = new ArrayList<>(((ArrayList)receivedArr[1]).size());
+
+            if((Boolean) receivedArr[0]){
+                throw new DataNotReceivedException((String) receivedArr[1]);
+            }
+
+            while(((ArrayList)receivedArr[1]).iterator().hasNext()){
+                retArr.add((String) ((ArrayList)receivedArr[1]).iterator().next());
+            }
+
+            return retArr;
         }
         catch(Exception e){
             Context context = getContext();
-            CharSequence text = "Coś poszło nie tak " + e.getLocalizedMessage();
-            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 
             ArrayList<String> errorList = new ArrayList<>();
             errorList.add(e.getLocalizedMessage());

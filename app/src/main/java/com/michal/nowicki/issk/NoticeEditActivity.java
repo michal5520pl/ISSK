@@ -34,20 +34,22 @@ public class NoticeEditActivity extends AppCompatActivity {
                 String[] editData = getEditData();
 
                 if(!(editData[0].equals("") || editData[1].equals("") || editData[2].equals(""))){
-                    NoticeEditActivityTask NEAT = new NoticeEditActivityTask();
+                    CommonInternetTask CIT = new CommonInternetTask();
 
                     if(id != null)
-                        NEAT.execute(new String[] { getEditData()[0], getEditData()[1], getEditData()[2], id });
+                        CIT.execute("notice/edit", true, new String[]{ "id", "title", "content", "archive" }, new String[]{ id, getEditData()[0], getEditData()[1], getEditData()[2] });
                     else
-                        NEAT.execute(getEditData());
+                        CIT.execute("notice/add", true, new String[]{ "title", "content", "archive" }, getEditData());
 
                     try {
-                        String data = NEAT.get();
+                        Object[] receivedData = CIT.get();
 
-                        if((data.equals("false")))
+                        if(!(Boolean)receivedData[0]) {
                             finish();
+                            Toast.makeText(getBaseContext(), R.string.success, Toast.LENGTH_LONG).show();
+                        }
                         else
-                            Toast.makeText(getBaseContext(), data, Toast.LENGTH_LONG).show();
+                            Toast.makeText(getBaseContext(), R.string.somethings_not_ok + " " + receivedData[1], Toast.LENGTH_LONG).show();
                     }
                     catch(InterruptedException | ExecutionException e){
                         Toast.makeText(getBaseContext(), "Exception: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();

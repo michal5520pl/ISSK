@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Internetowy System Służb Konduktorskich</string>
     <string name="title_activity_announcement">Ogłoszenia</string>
     <string name="drawer_open">Drawer opened</string>
@@ -11,12 +11,12 @@
     <string name="not_logged_in">Nie jesteś zalogowany/a.</string>
     <string name="database_error">Błąd połączenia z bazą danych.</string>
     <string name="process_exception">Powstał wyjątek w module wykonawczym. Skontaktuj się z twórcą.</string>
-    <string name="interrupted_exception">Przerwano proces.</string>
+    <string name="interrupted_exception" tools:ignore="Typos">Przerwano proces.</string>
     <string name="execution_exception">Wystąpił błąd przy uruchamianiu procesu. Skontaktuj się z twórcą.</string>
     <string name="somethings_not_ok">Coś poszło nie tak.</string>
     <string name="session_verification_failed">Wystąpił błąd weryfikacji sesji.</string>
 
-    <!--> infos </!-->
+    <!--> info </!-->
     <string name="session_passed">Sesja wygasła.</string>
     <string name="fill_every_edit">Uzupełnij wszystkie pola.</string>
     <string name="no_notices">Brak ogłoszeń.</string>
@@ -28,4 +28,5 @@
     <string name="edit">Edytuj</string>
     <string name="archive">Archiwizuj</string>
     <string name="delete">Usuń</string>
+    <string name="success">Operacja powiodła się.</string>
 </resources>

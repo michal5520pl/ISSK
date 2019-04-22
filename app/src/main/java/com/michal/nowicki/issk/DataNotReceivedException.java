@@ -9,5 +9,5 @@ import java.io.IOException;
 class DataNotReceivedException extends IOException {
     DataNotReceivedException() { throw new RuntimeException("Stub"); }
 
-    DataNotReceivedException(String message) { throw new RuntimeException("Stub"); }
+    DataNotReceivedException(String message) { throw new RuntimeException("Exception: " + message); }
 }

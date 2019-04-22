@@ -1,6 +1,7 @@
 package com.michal.nowicki.issk;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,26 +14,35 @@ import android.webkit.WebView;
  */
 
 public class TimetableFragment extends Fragment {
+    static boolean open = true;
 
     public TimetableFragment(){}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_timetable, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
 
-        WebView webV;
+        if(open){
+            WebView webV;
 
-        if(getView() != null){
-            if(getView().findViewById(R.id.webview) != null){
-                webV = getView().findViewById(R.id.webview);
+            if (view.findViewById(R.id.webview) != null) {
+                webV = view.findViewById(R.id.webview);
                 webV.setVisibility(View.INVISIBLE);
                 webV.loadUrl("https://drive.google.com/open?id=0B5wPhEU3v_0INlEteEJIVWhxLUE");
+                open = false;
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        open = true;
     }
 }

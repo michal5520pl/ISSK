@@ -2,8 +2,10 @@ package com.michal.nowicki.issk;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.Html;
@@ -107,8 +109,7 @@ public class AnnouncementFragment extends Fragment {
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                 contentView.setText(Html.fromHtml(noticeArray.get(position).content, 16));
-            else if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                //noinspection deprecation
+            else
                 contentView.setText(Html.fromHtml(noticeArray.get(position).content));
 
             if(MainActivity.getPermsString().contains("ogl_edit") && noticeArray.get(position).archive != null){
@@ -144,22 +145,23 @@ public class AnnouncementFragment extends Fragment {
                 delete_bttn.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View v){
-                        NoticeDeleteOrArchiveTask NDoAT = new NoticeDeleteOrArchiveTask();
+                        CommonInternetTask CIT = new CommonInternetTask();
 
                         try {
-                            NDoAT.execute(Integer.valueOf(noticeArray.get(position).id), 0);
-                            String data = NDoAT.get();
+                            CIT.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "notice/delete", true, new String[]{ "id" }, new String[]{ noticeArray.get(position).id });
+                            Object[] receivedData = CIT.get();
 
-                            if(!(data.equals("false")))
-                                Toast.makeText(getContext(), "Exception: " + data, Toast.LENGTH_LONG).show();
+                            if((Boolean) receivedData[0])
+                                throw new DataNotReceivedException((String)receivedData[1]);
                             else {
+                                assert getActivity() != null;
                                 Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.content_frame);
                                 assert fragment != null;
                                 getActivity().getSupportFragmentManager().beginTransaction().detach(fragment).commit();
                                 getActivity().getSupportFragmentManager().beginTransaction().attach(fragment).commit();
                             }
                         }
-                        catch(InterruptedException | ExecutionException e){
+                        catch(InterruptedException | ExecutionException | DataNotReceivedException e){
                             Toast.makeText(getContext(), "Exception: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
@@ -175,22 +177,23 @@ public class AnnouncementFragment extends Fragment {
                 archive_bttn.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View v){
-                        NoticeDeleteOrArchiveTask NDoAT = new NoticeDeleteOrArchiveTask();
+                        CommonInternetTask CIT = new CommonInternetTask();
 
                         try {
-                            NDoAT.execute(Integer.valueOf(noticeArray.get(position).id), 1);
-                            String data = NDoAT.get();
+                            CIT.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "notice/archive", true, new String[]{ "id" }, new String[]{ noticeArray.get(position).id });
+                            Object[] receivedData = CIT.get();
 
-                            if(!(data.equals("false")))
-                                Toast.makeText(getContext(), "Exception: " + data, Toast.LENGTH_LONG).show();
+                            if((Boolean) receivedData[0])
+                                throw new DataNotReceivedException((String)receivedData[1]);
                             else {
+                                assert getActivity() != null;
                                 Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.content_frame);
                                 assert fragment != null;
                                 getActivity().getSupportFragmentManager().beginTransaction().detach(fragment).commit();
                                 getActivity().getSupportFragmentManager().beginTransaction().attach(fragment).commit();
                             }
                         }
-                        catch(InterruptedException | ExecutionException e){
+                        catch(InterruptedException | ExecutionException | DataNotReceivedException e){
                             Toast.makeText(getContext(), "Exception: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
@@ -239,12 +242,12 @@ public class AnnouncementFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_announcement, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
         TabHost tabHost = view.findViewWithTag("tabhost");
         FloatingActionButton floatingActionButton = view.findViewById(R.id.floatingButton);
 
@@ -277,28 +280,34 @@ public class AnnouncementFragment extends Fragment {
             });
         }
         else
-            floatingActionButton.setVisibility(View.GONE);
+            //floatingActionButton.setVisibility(View.GONE);
+            floatingActionButton.hide();
 
         switch(BasicMethods.checkSession()){
             case 0:
             {
                 try {
                     // ---- actual announcements ---- //
-                    AnnouncementFragmentTask AFT = new AnnouncementFragmentTask();
+                    CommonInternetTask CIT = new CommonInternetTask();
 
-                    AFT.execute();
-                    ArrayList<HashMap<String, String>> receivedArray = AFT.get();
+                    CIT.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "notice/getall", false);
+                    Object[] receivedArray = CIT.get();
 
                     if(receivedArray == null){
                         Toast.makeText(view.getContext(), "FATAL EXCEPTION: AFT.get() == null! Skontaktuj się z twórcą aplikacji.", Toast.LENGTH_LONG).show();
                         break;
                     }
 
-                    if(receivedArray.size() == 0){
+                    if((Boolean) receivedArray[0]){
+                        throw new DataNotReceivedException(R.string.somethings_not_ok + " " + receivedArray[1]);
+                    }
+
+                    if(((ArrayList)receivedArray[1]).size() == 0){
                         TextView textView_no_notices = new TextView(this.getContext());
                         textView_no_notices.setText(R.string.no_notices);
 
                         if(! MainActivity.getPermsString().contains("ogl_archive")){
+                            assert getActivity() != null;
                             LinearLayout announcementList = getActivity().findViewById(R.id.announcementList);
                             announcementList.removeAllViews();
                             announcementList.addView(textView_no_notices);
@@ -311,14 +320,12 @@ public class AnnouncementFragment extends Fragment {
                         }
                     }
 
-                    if(receivedArray.size() != 0){
-                        if(receivedArray.get(0).containsKey("error"))
-                            throw new DataNotReceivedException("Received error from AFT.");
-
+                    if(((ArrayList)receivedArray[1]).size() != 0){
+                        ArrayList<HashMap<String, String>> array = BasicMethods.objToArray(receivedArray[1]);
                         ArrayList<NoticeItem> noticeItemArrayList = new ArrayList<>();
 
-                        for(int i = 0; i < receivedArray.size(); i++){
-                            noticeItemArrayList.add(new NoticeItem(receivedArray.get(i)));
+                        for(int i = 0; i < array.size(); i++){
+                            noticeItemArrayList.add(new NoticeItem(array.get(i)));
                         }
 
                         ListNoticeAdapter actualAdapter = new ListNoticeAdapter(getContext(), noticeItemArrayList);
@@ -330,17 +337,20 @@ public class AnnouncementFragment extends Fragment {
                     // ---- archive announcements ---- //
 
                     if(MainActivity.getPermsString().contains("ogl_archive")){
-                        ArchiveAnnouncementFragmentTask AAFT = new ArchiveAnnouncementFragmentTask();
+                        CommonInternetTask ACIT = new CommonInternetTask();
+                        ACIT.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "notice/archive_show", false);
+                        receivedArray = ACIT.get();
 
-                        AAFT.execute();
-                        ArrayList<HashMap<String, String>> receivedArchiveArray = AAFT.get();
-
-                        if(receivedArchiveArray == null){
+                        if(receivedArray == null){
                             Toast.makeText(view.getContext(), R.string.process_exception, Toast.LENGTH_LONG).show();
                             break;
                         }
 
-                        if(receivedArchiveArray.size() == 0){
+                        if((Boolean) receivedArray[0]){
+                            throw new DataNotReceivedException(R.string.somethings_not_ok + " " + receivedArray[1]);
+                        }
+
+                        if(((ArrayList)receivedArray[1]).size() == 0){
                             TextView textView_no_archive_notices = new TextView(this.getContext());
                             textView_no_archive_notices.setText(R.string.no_notices);
 
@@ -349,14 +359,12 @@ public class AnnouncementFragment extends Fragment {
                             tab2.addView(textView_no_archive_notices);
                         }
 
-                        if(receivedArchiveArray.size() != 0){
-                            if(receivedArchiveArray.get(0).containsKey("error"))
-                                throw new DataNotReceivedException("Received error from AAFT.");
-
+                        if(((ArrayList)receivedArray[1]).size() != 0){
+                            ArrayList<HashMap<String, String>> array = BasicMethods.objToArray(receivedArray[1]);
                             ArrayList<NoticeItem> archiveNoticeItemArrayList = new ArrayList<>();
 
-                            for(int j= 0; j < receivedArchiveArray.size(); j++){
-                                archiveNoticeItemArrayList.add(new NoticeItem(receivedArchiveArray.get(j)));
+                            for(int j = 0; j < array.size(); ++j){
+                                archiveNoticeItemArrayList.add(new NoticeItem(array.get(j)));
                             }
 
                             ListNoticeAdapter archiveAdapter = new ListNoticeAdapter(getContext(), archiveNoticeItemArrayList);
@@ -375,6 +383,7 @@ public class AnnouncementFragment extends Fragment {
             {
                 Intent intent = new Intent(view.getContext(), LoginActivity.class);
                 startActivity(intent);
+                assert getActivity() != null;
                 getActivity().finish();
                 Toast.makeText(view.getContext(), R.string.not_logged_in, Toast.LENGTH_LONG).show();
                 break;
@@ -388,6 +397,7 @@ public class AnnouncementFragment extends Fragment {
             {
                 Intent intent = new Intent(view.getContext(), LoginActivity.class);
                 startActivity(intent);
+                assert getActivity() != null;
                 getActivity().finish();
                 Toast.makeText(view.getContext(), R.string.session_passed, Toast.LENGTH_LONG).show();
                 break;

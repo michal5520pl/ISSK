@@ -88,8 +88,8 @@ final class CommonInternetTask extends AsyncTask<Object, Void, Object[]> {
                                     array.add(jsonObject.optString(aName));
                                     break;
                                 case "id":
-                                    Integer result = jsonObject.getInt(aName);
-                                    array.add(result.toString());
+                                    int result = jsonObject.getInt(aName);
+                                    array.add(String.valueOf(result));
                                     break;
                                 default:
                                     if(jsonObject.getInt(aName) != 0){
@@ -124,7 +124,7 @@ final class CommonInternetTask extends AsyncTask<Object, Void, Object[]> {
                         JSONArray jsonArray = new JSONArray(receivedData.substring(23, receivedData.lastIndexOf("]") + 1).trim());
                         ArrayList<HashMap<String, String>> jsonObjects = new ArrayList<>();
                         HashMap<String, String> tempMap = new HashMap<>();
-                        Integer k = 0;
+                        int k = 0;
 
                         while(k < jsonArray.length()){
                             for(String annNameValue : BasicMethods.ANNOUCEMENTVALUESNAMES){
@@ -149,7 +149,7 @@ final class CommonInternetTask extends AsyncTask<Object, Void, Object[]> {
                         JSONArray jsonArray = new JSONArray(receivedData.substring(23, receivedData.lastIndexOf("]") + 1).trim());
                         ArrayList<HashMap<String, String>> jsonObjects = new ArrayList<>();
                         HashMap<String, String> tempMap = new HashMap<>();
-                        Integer k = 0;
+                        int k = 0;
 
                         while(k < jsonArray.length()){
                             for(String annNameValue : BasicMethods.ANNOUCEMENTVALUESNAMES){
@@ -166,6 +166,7 @@ final class CommonInternetTask extends AsyncTask<Object, Void, Object[]> {
 
                         return new Object[]{false, jsonObjects};
                     }
+
                     else if(objects[0].equals("session_verify")){
                         JSONObject jsonObject = new JSONObject(receivedData);
                         return new Object[]{false, jsonObject.getInt("error")};

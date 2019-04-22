@@ -2,7 +2,6 @@ package com.michal.nowicki.issk;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,6 +22,7 @@ import android.widget.Toast;
 
 import java.net.CookieManager;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -107,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
             case "Moje konto": { fragmentManager.beginTransaction().replace(R.id.content_frame, new MyAccountFragment()).commit(); break; }
             case "Ustawienia": { fragmentManager.beginTransaction().replace(R.id.content_frame, new SettingsFragment()).commit(); break; }
             case "Wyloguj się": {
-                LogoutTask LogoutT = new LogoutTask();
+                CommonInternetTask CIT = new CommonInternetTask();
                 try {
-                    LogoutT.execute();
-                    if(LogoutT.get().equals(false)){
+                    CIT.execute("logout");
+                    if((Boolean) CIT.get()[0]){
                         throw new DataNotReceivedException();
                     }
                     Intent intent = new Intent(v.getContext(), LoginActivity.class);
@@ -254,8 +254,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, new AnnouncementFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new AnnouncementFragment()).commit();
 
         //SQLiteDatabase localDB = SQLiteDatabase.openOrCreateDatabase(getApplication().getFilesDir().toString() + "local_data", null);
         //if();
@@ -273,6 +272,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+
+        assert fragment != null;
         getSupportFragmentManager().beginTransaction().detach(fragment).commit();
         getSupportFragmentManager().beginTransaction().attach(fragment).commit();
     }
@@ -281,17 +282,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
 
-        LogoutTask LogoutT = new LogoutTask();
+        CommonInternetTask CIT = new CommonInternetTask();
         try {
-            LogoutT.execute();
-            if(LogoutT.get().equals(false)){
+            CIT.execute("logout");
+            if((Boolean) CIT.get()[0]){
                 throw new DataNotReceivedException();
             }
         }
-        catch (Exception e){
-            Context context = getApplicationContext();
-            CharSequence text = "Coś poszło nie tak";
-            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        catch (ExecutionException | InterruptedException | DataNotReceivedException e){
+            Toast.makeText(getApplicationContext(), R.string.somethings_not_ok + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }

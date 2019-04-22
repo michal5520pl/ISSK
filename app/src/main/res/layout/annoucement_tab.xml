@@ -7,39 +7,45 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:layout_margin="5dp" />
 
     <TextView
         android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:layout_margin="5dp" />
 
     <TextView
         android:id="@+id/author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/content"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:layout_margin="5dp" />
 
     <TextView
         android:id="@+id/publish"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/author"/>
+        android:layout_below="@id/author"
+        android:layout_margin="5dp" />
 
     <TextView
         android:id="@+id/archive"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/publish"/>
+        android:layout_below="@id/publish"
+        android:layout_margin="5dp" />
 
     <TextView
         android:id="@+id/changed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/archive"/>
+        android:layout_below="@id/archive"
+        android:layout_margin="5dp" />
 
     <Button
         android:id="@+id/delete_notice_bttn"

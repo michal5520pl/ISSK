@@ -1,6 +1,7 @@
 package com.michal.nowicki.issk;
 
-import android.database.sqlite.SQLiteDatabase;
+//import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,12 +11,9 @@ import android.widget.TextView;
 import android.content.Intent;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.net.CookieHandler;
 
 public class LoginActivity extends AppCompatActivity {
-
-    public Button button1;
     public static final String DATA = "data";
 
     String returnData(String requiredData){
@@ -41,8 +39,10 @@ public class LoginActivity extends AppCompatActivity {
             errText.setText("");
             CommonInternetTask CIT = new CommonInternetTask();
             try {
-                CIT.execute("login", true, new Object[]{"mail", "haslo"}, new Object[]{email, pass});
+                findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                CIT.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "login", true, new Object[]{"mail", "haslo"}, new Object[]{email, pass});
                 data = CIT.get();
+                findViewById(R.id.progressBar).setVisibility(View.GONE);
 
                 if(!(boolean) data[0]){
                     //DatabaseHandler.update
@@ -77,13 +77,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void openDatabaseFillEmailEdit(){
+    /*private void openDatabaseFillEmailEdit(){
         String result = DatabaseHandler.readFromDatabase(new String[]{"settings", "rownum < 2", null, null, null}, new String[][]{{"email"}, {null}}, getApplication().getFilesDir().toString());
         if(result != null) {
             EditText emailText = findViewById(R.id.editEmail);
             emailText.setText(result);
         }
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

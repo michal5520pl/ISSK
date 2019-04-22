@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.michal.nowicki.issk.NoticeEditActivity">
+    tools:context="com.michal.nowicki.issk.NoticeEditActivity"
+    tools:targetApi="N_MR1">
 
     <TableRow
         android:layout_marginTop="10dp"
@@ -20,7 +20,10 @@
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:gravity="start|end"
-            android:hint="@string/fill_title" />
+            android:hint="@string/fill_title"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            tools:ignore="UnusedAttribute" />
     </TableRow>
 
     <TableRow android:layout_marginTop="10dp">
@@ -34,22 +37,10 @@
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:gravity="start|end"
-            android:hint="@string/fill_content" />
-
-    </TableRow>
-
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
-            android:text="@string/fill_archive" />
+            android:hint="@string/fill_content"
+            android:inputType="text"
+            android:importantForAutofill="no"
+            tools:ignore="UnusedAttribute" />
 
     </TableRow>
 
@@ -70,7 +61,10 @@
             android:layout_marginTop="10dp"
             android:ems="10"
             android:gravity="start|end"
-            android:inputType="date" />
+            android:inputType="date"
+            android:hint="@string/fill_archive"
+            android:importantForAutofill="no"
+            tools:ignore="UnusedAttribute" />
     </TableRow>
 
     <TableRow
